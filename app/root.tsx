@@ -72,12 +72,29 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       {children}
-      <ScrollRestoration />
-      <Scripts />
     </>
   );
 }
 
 export default function App() {
-  return <Outlet />;
+  return (
+    <html lang="en">
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <Meta />
+        <Links />
+        <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
+      </head>
+      <body>
+        <div id="root">
+          <Layout>
+            <Outlet />
+          </Layout>
+        </div>
+        <ScrollRestoration />
+        <Scripts />
+      </body>
+    </html>
+  );
 }

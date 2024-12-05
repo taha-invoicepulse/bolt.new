@@ -9,31 +9,51 @@ export default defineConfig((config) => {
   return {
     build: {
       target: 'esnext',
+      rollupOptions: {
+        onwarn(warning, warn) {
+          if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+          warn(warning);
+        },
+      },
+    },
+    server: {
+      hmr: {
+        overlay: false,
+      },
+      middlewareMode: false,
     },
     plugins: [
       nodePolyfills({
         include: ['path', 'buffer'],
+        globals: {
+          Buffer: true,
+        },
       }),
       config.mode !== 'test' && remixCloudflareDevProxy(),
       remixVitePlugin({
         future: {
           v3_fetcherPersist: true,
           v3_relativeSplatPath: true,
-          v3_throwAbortReason: true
+          v3_throwAbortReason: true,
+          v3_lazyRouteDiscovery: true,
+          v3_singleFetch: true
         },
       }),
       UnoCSS(),
       tsconfigPaths(),
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
-    ],
-    envPrefix:["VITE_","OPENAI_LIKE_API_","OLLAMA_API_BASE_URL","LMSTUDIO_API_BASE_URL"],
+    ].filter(Boolean),
+    envPrefix: ["VITE_","OPENAI_LIKE_API_","OLLAMA_API_BASE_URL","LMSTUDIO_API_BASE_URL"],
     css: {
       preprocessorOptions: {
         scss: {
           api: 'modern-compiler',
         },
       },
+    },
+    optimizeDeps: {
+      exclude: ['@remix-run/dev', '@remix-run/cloudflare-pages'],
     },
   };
 });
